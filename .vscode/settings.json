@@ -1,0 +1,6 @@
+{
+  "files.encoding": "utf8",
+  "editor.tabSize": 2,
+  "files.exclude": { "**/.git": true },
+  "search.exclude": { "dist": true }
+}

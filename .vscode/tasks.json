@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "UsOS: 실행",
+      "type": "process",
+      "command": "node",
+      "args": ["scripts/serve.mjs"],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "UsOS: 배포 파일 만들기",
+      "type": "process",
+      "command": "node",
+      "args": ["scripts/build.mjs"],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}
