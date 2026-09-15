@@ -32,4 +32,22 @@ Places는 현재 장소 목록이며 실제 지도 연동은 아직 없습니다
 사진 업로드·서버 저장·실제 기념일 계산·로그인 기능은 아직 없습니다.
 약속 버튼 상태는 새로고침하면 초기화됩니다.
 
-배포 서비스는 사용자 계정에 맞춰 연결할 예정입니다.
+## GitHub Pages로 배포
+
+GitHub 계정은 `leedaeun31`을 사용합니다. 최초 연결과 배포는 GitHub 인증 후 진행합니다.
+`.github/workflows/deploy.yml`이 main 브랜치 변경을 감지해 문법 확인 → 빌드 → 배포를 실행합니다.
+샘플로 구성된 현재 프로젝트는 공개 저장소와 공개 웹사이트로 배포할 수 있습니다.
+
+최초 배포 후 다시 수정할 때는 VS Code 터미널에서 다음을 실행합니다.
+
+```sh
+npm run check
+npm run build
+git add public scripts package.json README.md .github .vscode .gitignore
+git commit -m "Update UsOS"
+git push origin main
+```
+
+VS Code의 소스 제어 화면에서 변경 내용을 커밋하고 '변경 내용 동기화'를 눌러도 됩니다.
+배포 진행 상황은 GitHub 저장소의 Actions 탭에서 확인합니다.
+공식 안내: https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
