@@ -34,9 +34,14 @@ Places는 현재 장소 목록이며 실제 지도 연동은 아직 없습니다
 
 ## GitHub Pages로 배포
 
-GitHub 계정은 `leedaeun31`을 사용합니다. 최초 연결과 배포는 GitHub 인증 후 진행합니다.
+GitHub 계정 `leedaeun31`에 연결되어 있습니다.
+
+- 웹사이트: https://leedaeun31.github.io/usos-1000-days/
+- 소스 저장소: https://github.com/leedaeun31/usos-1000-days
+- 배포 상태: https://github.com/leedaeun31/usos-1000-days/actions
+
 `.github/workflows/deploy.yml`이 main 브랜치 변경을 감지해 문법 확인 → 빌드 → 배포를 실행합니다.
-샘플로 구성된 현재 프로젝트는 공개 저장소와 공개 웹사이트로 배포할 수 있습니다.
+샘플로 구성된 현재 프로젝트는 공개 저장소와 공개 웹사이트로 배포됩니다.
 
 최초 배포 후 다시 수정할 때는 VS Code 터미널에서 다음을 실행합니다.
 
