@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>UsOS 관리자</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <span class="eyebrow">OUR LITTLE CONTROL ROOM</span>
+        <h1>UsOS 편집실 ♡</h1>
+        <p>우리의 사진과 마음을 채우는 곳.</p>
+      </div>
+      <a href="./" target="_blank" rel="noopener">사이트 열기 ↗</a>
+    </header>
+    <main>
+      <section class="connection">
+        <div>
+          <h2>저장할 계정 연결</h2>
+          <p id="auth-status">미리보기와 초안 편집은 바로 사용할 수 있어요.</p>
+        </div>
+        <form id="login">
+          <label for="token">GitHub 저장용 토큰</label>
+          <div class="inline">
+            <input
+              id="token"
+              type="password"
+              autocomplete="off"
+              placeholder="github_pat_…"
+            /><button>계정 연결</button>
+          </div>
+        </form>
+        <button id="logout" hidden>연결 해제</button>
+        <details>
+          <summary>처음 연결하는 방법</summary>
+          <ol>
+            <li>
+              <a
+                href="https://github.com/settings/personal-access-tokens/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub에서 Fine-grained token 만들기 ↗</a
+              >
+            </li>
+            <li>
+              Resource owner: <b>leedaeun31</b>, Repository access:
+              <b>Only select repositories → usos-1000-days</b>
+            </li>
+            <li>
+              Repository permissions의 <b>Contents: Read and write</b>를
+              선택해요. 만료일도 지정해 주세요.
+            </li>
+            <li>
+              만든 토큰을 위 입력란에 붙여넣고 연결해요. 토큰은 이 탭의
+              메모리에서만 사용하고, 파일이나 초안에 저장하지 않아요.
+            </li>
+          </ol>
+          <p>
+            현재 사이트와 저장소는 공개 상태예요. 발행한 사진과 내용은 누구나 볼
+            수 있어요.
+          </p>
+        </details>
+      </section>
+      <div id="notice" role="status" aria-live="polite">
+        내용을 불러오고 있어요…
+      </div>
+      <div class="toolbar">
+        <button id="save-draft" disabled>이 기기에 초안 저장</button
+        ><button id="restore" disabled>초안 불러오기</button
+        ><button id="preview-button" disabled>미리보기</button
+        ><button id="reload" disabled>최신 내용 불러오기</button
+        ><button id="publish" class="primary" disabled>
+          저장하고 발행하기
+        </button>
+      </div>
+      <div class="layout">
+        <nav id="sections" aria-label="편집 항목"></nav>
+        <section id="editor" aria-label="콘텐츠 편집"></section>
+        <aside id="preview-panel" hidden>
+          <div class="inline">
+            <h2>저장 전 미리보기</h2>
+            <button id="close-preview">닫기</button>
+          </div>
+          <iframe
+            id="preview"
+            title="UsOS 미리보기"
+            src="./?preview=1"
+          ></iframe>
+        </aside>
+      </div>
+    </main>
+    <footer>
+      초안은 이 기기에만 저장돼요. ‘저장하고 발행하기’를 누르면 GitHub에
+      저장되고 사이트가 자동으로 갱신돼요.
+    </footer>
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>

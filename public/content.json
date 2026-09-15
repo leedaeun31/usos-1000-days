@@ -1,0 +1,176 @@
+{
+  "site": {
+    "title": "UsOS — 우리의 작은 우주",
+    "description": "함께한 1000일을 담은 우리만의 작은 운영체제",
+    "brand": "♥ UsOS",
+    "subtitle": "우리만의 작은 우주",
+    "connection": "♡ connected to you",
+    "eyebrow": "OUR LITTLE OPERATING SYSTEM",
+    "heading": "you & me",
+    "tagline": "since our first hello.",
+    "intro": "함께 쌓아온 날들, 앞으로 채워갈 이야기.",
+    "badge": "♥ 1,000 days of us",
+    "stickyTitle": "note to you ↗",
+    "stickyBody": "평범한 날도\n너랑 있으면\n좋은 날이 돼.",
+    "stickyFooter": "♡ always, you",
+    "footer": "made with love, a little code & lots of us.",
+    "start": "♥ UsOS",
+    "tray": "♡ 1000 DAYS",
+    "menu": "우리의 작은 공간 ♡",
+    "wallpaperImage": "",
+    "faviconImage": ""
+  },
+  "apps": {
+    "welcome": { "icon": "♥", "name": "Welcome to UsOS" },
+    "photos": { "icon": "📁", "name": "Photos" },
+    "notes": { "icon": "📝", "name": "Notes" },
+    "maps": { "icon": "🗺️", "name": "Our places" },
+    "terminal": { "icon": "💻", "name": "Terminal" },
+    "letter": { "icon": "💌", "name": "1000days.txt" },
+    "trash": { "icon": "🗑️", "name": "휴지통" }
+  },
+  "welcome": {
+    "version": "UsOS ver. 1.0.0",
+    "eyebrow": "A LITTLE SPACE FOR TWO",
+    "heading": "우리의 1000일을 열어볼까?",
+    "body": "좋아하는 순간들을 폴더에 모으고,\n아껴둔 마음을 한 줄씩 적었어.\n여기 있는 모든 건, 너와 나의 이야기야.",
+    "button": "📁 추억부터 구경하기",
+    "hint": "지금은 샘플 이야기로 채워둔 공간이에요."
+  },
+  "photos": {
+    "label": "OUR MEMORIES · 샘플 앨범",
+    "hint": "클릭해서 메모 읽기 ↗",
+    "empty": "사진이 들어오기 전, 작은 추억 카드들이 기다리고 있어요.",
+    "items": [
+      {
+        "icon": "☕",
+        "image": "",
+        "title": "처음의 우리",
+        "caption": "조금 서툴러서 더 좋았던 날."
+      },
+      {
+        "icon": "🌊",
+        "image": "",
+        "title": "함께 본 바다",
+        "caption": "바다보다 네 표정을 더 많이 봤어."
+      },
+      {
+        "icon": "🌷",
+        "image": "",
+        "title": "별일 없던 주말",
+        "caption": "산책하고, 웃고, 또 걷고."
+      },
+      {
+        "icon": "🌙",
+        "image": "",
+        "title": "집에 가는 길",
+        "caption": "조금만 더 같이 있고 싶던 밤."
+      }
+    ]
+  },
+  "notes": {
+    "label": "마음의 메모장 · 샘플",
+    "items": [
+      {
+        "title": "네가 좋은 이유 01.",
+        "body": "내 하루에서 가장 사소한 이야기도\n재미있게 들어주는 사람이라서."
+      },
+      {
+        "title": "고마웠던 순간",
+        "body": "해결책보다 내 편이 먼저 필요했던 날,\n말없이 옆에 있어줘서 고마워."
+      },
+      {
+        "title": "다음에도, 우리",
+        "body": "새로운 곳도 좋지만, 늘 가던 길을\n너랑 한 번 더 걷고 싶어."
+      }
+    ]
+  },
+  "maps": {
+    "label": "우리의 장소 · 샘플",
+    "pastLabel": "함께 간 곳",
+    "futureLabel": "같이 가고 싶은 곳",
+    "past": [
+      {
+        "icon": "☕",
+        "title": "처음 마주 앉은 카페",
+        "body": "어색한 인사 뒤에 시작된 긴 이야기."
+      },
+      {
+        "icon": "🌳",
+        "title": "자주 걷던 산책길",
+        "body": "목적지가 없어도 좋았던 길."
+      }
+    ],
+    "future": [
+      {
+        "icon": "🌊",
+        "title": "바다가 보이는 작은 마을",
+        "body": "늦잠 자고, 바다 보고, 맛있는 거 먹기."
+      },
+      {
+        "icon": "✨",
+        "title": "별이 쏟아지는 밤",
+        "body": "휴대폰은 잠시 넣고 하늘 보기."
+      }
+    ]
+  },
+  "terminal": {
+    "intro": "UsOS shell [version 1.0.0]\nType 'help' to discover a little love.\n──────────────────────────",
+    "prompt": "us@love:~$",
+    "unknown": "아직 모르는 명령어야. help를 입력해 봐 ♡",
+    "commands": [
+      {
+        "command": "help",
+        "reply": "help · whoami · uptime · love · future\nsudo hug · ls · cat gift.txt · clear"
+      },
+      { "command": "whoami", "reply": "내가 가장 좋아하는 사람 ♡" },
+      {
+        "command": "uptime",
+        "reply": "너와 함께한 지 1000일. Happy anniversary!"
+      },
+      { "command": "love", "reply": "어떤 버전의 너라도, 나는 네 편이야." },
+      {
+        "command": "future",
+        "reply": "다음 천 일도 같이 걷고, 웃고, 만들어가기."
+      },
+      {
+        "command": "sudo hug",
+        "reply": "권한이 승인되었습니다. 옆 사람을 안아주세요."
+      },
+      {
+        "command": "git status",
+        "reply": "앞으로 함께할 일이 많이 남아 있습니다."
+      },
+      { "command": "ls", "reply": "memories/  notes/  1000days.txt  .secret/" },
+      {
+        "command": "cat gift.txt",
+        "reply": "🎁 선물 힌트 자리야. 우리의 비밀이 곧 도착할 예정!"
+      }
+    ]
+  },
+  "letter": {
+    "label": "TO. 내가 가장 좋아하는 사람 · 샘플 편지",
+    "body": "안녕, 나의 가장 다정한 친구.\n\n함께한 날이 천 번이나 쌓였네.\n특별한 날도, 아무 일 없던 날도\n네가 있어서 오래 기억하고 싶어졌어.\n\n앞으로도 우리,\n서툰 날엔 서로를 기다려주고\n좋은 날엔 제일 먼저 서로를 찾자.\n\n다음 천 일도 너랑 만들고 싶어.\n늘 고맙고, 많이 좋아해. ♡",
+    "button": "♥ 다음 1000일도 함께하기",
+    "done": "✓ 우리, 약속 완료",
+    "result": "약속 저장 완료 ♡ 우리의 다음 버전을 기대해."
+  },
+  "trash": {
+    "icon": "🗑️",
+    "heading": "휴지통이 비어 있어요.",
+    "body": "너랑 찍은 사진은 못 버리겠어서.\n우리의 기억은 전부 보관 중 ♡"
+  },
+  "ui": {
+    "desktopLabel": "바탕화면 앱",
+    "minimize": "창 최소화",
+    "close": "창 닫기",
+    "minimizeSymbol": "−",
+    "closeSymbol": "×",
+    "menuSymbol": "▴",
+    "welcomeStatus": "all systems lovely ♡",
+    "statusPrefix": "UsOS / ",
+    "statusLove": "with love ♥",
+    "commandLabel": "터미널 명령어",
+    "adminLink": "관리자"
+  }
+}
