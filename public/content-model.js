@@ -1,3 +1,25 @@
+import { DEFAULT_VIEW } from "./image-view.js";
+export function normalizeContent(content) {
+  content.site.wallpaperView ??= { ...DEFAULT_VIEW };
+  content.photos.items.forEach(
+    (photo) => (photo.imageView ??= { ...DEFAULT_VIEW }),
+  );
+  const text = {
+    maximize: "창 최대화",
+    restore: "이전 크기로 복원",
+    resize: "창 크기 조절 (방향키 사용 가능)",
+    viewPhoto: "사진 크게 보기",
+    photoFit: "사진 전체",
+    photoFill: "영역 채우기",
+    photoZoom: "확대·축소",
+    photoX: "가로 위치",
+    photoY: "세로 위치",
+    photoReset: "위치 초기화",
+    photoHelp: "사진을 드래그해 옮기고, 휠 또는 슬라이더로 확대·축소하세요.",
+  };
+  for (const [key, value] of Object.entries(text)) content.ui[key] ??= value;
+  return content;
+}
 export const sections = {
   site: "바탕화면",
   apps: "앱 이름과 아이콘",
@@ -63,9 +85,26 @@ export const labels = {
   statusLove: "앱 창 하단 서명",
   commandLabel: "터미널 입력 설명",
   adminLink: "관리자 링크 문구",
+  maximize: "최대화 버튼 설명",
+  restore: "복원 버튼 설명",
+  resize: "창 크기 조절 안내",
+  viewPhoto: "사진 확대 보기 설명",
+  photoFit: "사진 전체 버튼",
+  photoFill: "영역 채우기 버튼",
+  photoZoom: "사진 확대·축소 라벨",
+  photoX: "가로 위치 라벨",
+  photoY: "세로 위치 라벨",
+  photoReset: "사진 위치 초기화 버튼",
+  photoHelp: "사진 확대 보기 안내",
 };
 export const templates = {
-  "photos.items": { icon: "♡", image: "", title: "새로운 추억", caption: "" },
+  "photos.items": {
+    icon: "♡",
+    image: "",
+    title: "새로운 추억",
+    caption: "",
+    imageView: { ...DEFAULT_VIEW },
+  },
   "notes.items": { title: "새 메모", body: "" },
   "maps.past": { icon: "📍", title: "새 장소", body: "" },
   "maps.future": { icon: "📍", title: "새 장소", body: "" },
@@ -93,13 +132,25 @@ export function iconHtml(value) {
     : escapeHtml(value);
 }
 export function validateContent(value, reference) {
+  normalizeContent(value);
+  reference = normalizeContent(structuredClone(reference));
   if (JSON.stringify(value).length > 16 * 1024 * 1024)
     throw new Error("사진을 포함한 전체 용량은 16MB 이하로 줄여주세요.");
   const walk = (v, r, path = "") => {
+    if (typeof r === "number") {
+      const key = path.split(".").at(-1),
+        min = key === "zoom" ? 0.5 : 0,
+        max = key === "zoom" ? 4 : 100;
+      if (typeof v !== "number" || !Number.isFinite(v) || v < min || v > max)
+        throw new Error(`${path}: 범위를 벗어난 사진 설정입니다.`);
+      return;
+    }
     if (typeof r === "string") {
       if (typeof v !== "string")
         throw new Error(`${path}: 문자열이 필요합니다.`);
       const key = path.split(".").at(-1);
+      if (key === "fit" && !["contain", "cover"].includes(v))
+        throw new Error(`${path}: 잘못된 사진 맞춤 방식입니다.`);
       if (
         ["image", "wallpaperImage", "faviconImage"].includes(key) &&
         v &&

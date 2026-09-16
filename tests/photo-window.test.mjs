@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {imageRect,normalizeView} from '../public/image-view.js';
+import {resizeRect,constrainRect} from '../public/window-manager.js';
+import {normalizeContent,validateContent} from '../public/content-model.js';
+test('whole-image mode contains both portrait and landscape images',()=>{for(const [w,h]of [[1200,600],[600,1200]]){const rect=imageRect(400,300,w,h,{fit:'contain',zoom:1,x:50,y:50});assert.ok(rect.width<=400&&rect.height<=300);assert.equal(rect.left,(400-rect.width)/2);assert.equal(rect.top,(300-rect.height)/2)}});
+test('cover crop stays inside the image even at extreme positioning',()=>{for(const pos of [0,50,100]){const r=imageRect(320,320,1600,900,{fit:'cover',zoom:2,x:pos,y:pos});assert.ok(r.left<=0&&r.top<=0);assert.ok(r.left+r.width>=320&&r.top+r.height>=320)}});
+test('resize all edges respects opposite edges and desktop bounds',()=>{const r={left:100,top:100,width:500,height:400};assert.deepEqual(resizeRect(r,'nw',-500,-500,1000,800),{left:0,top:0,width:600,height:500});assert.deepEqual(resizeRect(r,'se',1000,1000,1000,800),{left:100,top:100,width:900,height:700});for(const edge of ['n','e','s','w','ne','nw','se','sw']){const value=resizeRect(r,edge,900,900,1000,800);assert.ok(value.width>=300&&value.height>=220);assert.ok(value.left>=0&&value.top>=0&&value.left+value.width<=1000&&value.top+value.height<=800)}});
+test('windows stay visible when viewport shrinks',()=>{assert.deepEqual(constrainRect({left:900,top:700,width:800,height:650},320,500),{left:0,top:0,width:320,height:500})});
+test('old albums migrate without changing image bytes or text',async()=>{const old=JSON.parse(await readFile(new URL('../public/content.json',import.meta.url),'utf8'));const copy=structuredClone(old);normalizeContent(copy);assert.equal(copy.photos.items[0].image,old.photos.items[0].image);assert.equal(copy.site.wallpaperImage,old.site.wallpaperImage);assert.equal(copy.letter.body,old.letter.body);copy.photos.items[0].imageView={fit:'contain',zoom:1.7,x:25,y:70};validateContent(copy,old);assert.deepEqual(JSON.parse(JSON.stringify(copy)).photos.items[0].imageView,{fit:'contain',zoom:1.7,x:25,y:70});copy.photos.items[0].imageView.zoom=Infinity;assert.throws(()=>validateContent(copy,old),/범위/)});
+test('invalid display values cannot escape numeric bounds',()=>{assert.deepEqual(normalizeView({fit:'bad',zoom:-5,x:Infinity,y:999}),{fit:'cover',zoom:.5,x:50,y:100})});

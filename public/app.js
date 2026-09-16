@@ -1,4 +1,13 @@
-import { escapeHtml as e, iconHtml, isImage } from "./content-model.js";
+import {
+  escapeHtml as e,
+  iconHtml,
+  isImage,
+  normalizeContent,
+} from "./content-model.js";
+import { mountImageStage, createImageEditor } from "./image-view.js";
+import { setupWindow } from "./window-manager.js";
+let backgroundStage = null,
+  photoDialog = null;
 let data,
   z = 10;
 const wins = new Map();
@@ -7,7 +16,7 @@ const lines = (s) => e(s).replaceAll("\n", "<br>");
 const desktopIds = ["photos", "notes", "maps", "terminal", "letter", "trash"];
 const originalFavicon = document.querySelector('link[rel="icon"]').href;
 function renderDesktop(next) {
-  data = next;
+  data = normalizeContent(next);
   document.title = data.site.title;
   document.querySelector('meta[name="description"]').content =
     data.site.description;
@@ -28,11 +37,22 @@ function renderDesktop(next) {
   $(".tray").innerHTML = `${e(data.site.tray)} <span id="clock"></span>`;
   $("#menu>b").textContent = data.site.menu;
   const main = $("main");
-  main.style.backgroundImage = isImage(data.site.wallpaperImage)
-    ? `linear-gradient(#fffaf060,#fffaf060),url("${data.site.wallpaperImage}")`
-    : "";
-  main.style.backgroundSize = isImage(data.site.wallpaperImage) ? "cover" : "";
-  main.style.backgroundPosition = "center";
+  backgroundStage?.destroy();
+  document.querySelector("#wallpaper-photo")?.remove();
+  if (isImage(data.site.wallpaperImage)) {
+    const layer = document.createElement("div");
+    layer.id = "wallpaper-photo";
+    layer.setAttribute("aria-hidden", "true");
+    main.prepend(layer);
+    backgroundStage = mountImageStage(
+      layer,
+      data.site.wallpaperImage,
+      "",
+      data.site.wallpaperView,
+    );
+  }
+  wins.forEach((w) => w.cleanup?.());
+  photoDialog?.close();
   wins.clear();
   $("#windows").replaceChildren();
   $("#desktop").replaceChildren();
@@ -65,7 +85,7 @@ function body(id) {
     case "welcome":
       return `<div class="welcome"><span class="pill">${e(v.version)}</span><div class="eyebrow">${e(v.eyebrow)}</div><h2>${e(v.heading)}</h2><p>${lines(v.body)}</p><button class="primary" data-open="photos">${e(v.button)}</button><p class="small-hint">${lines(v.hint)}</p></div>`;
     case "photos":
-      return `<span class="pill">${e(v.label)}</span><div class="cards">${v.items.map((p, i) => `<button class="photo" data-photo="${i}"><div class="sample">${isImage(p.image) ? `<img class="memory-image" src="${e(p.image)}" alt="${e(p.title)}">` : iconHtml(p.icon)}</div><p>${e(p.title)}</p><small>${e(v.hint)}</small></button>`).join("")}</div><p class="photo-detail" id="caption">${e(v.empty)}</p>`;
+      return `<span class="pill">${e(v.label)}</span><div class="cards">${v.items.map((p, i) => `<button class="photo" data-photo="${i}" aria-label="${e(p.title + " · " + data.ui.viewPhoto)}"><div class="sample">${isImage(p.image) ? "" : iconHtml(p.icon)}</div><p>${e(p.title)}</p></button>`).join("")}</div><p class="gallery-hint">${e(v.hint)}</p><p class="photo-detail" id="caption">${e(v.empty)}</p>`;
     case "notes":
       return `<span class="pill">${e(v.label)}</span>${v.items.map((n) => `<article class="note"><h3>${e(n.title)}</h3><p>${lines(n.body)}</p></article>`).join("")}`;
     case "maps":
@@ -93,11 +113,20 @@ function openApp(id) {
   w.style.zIndex = ++z;
   w.style.left = `${Math.min(22 + wins.size * 3, 38)}%`;
   w.style.top = `${60 + wins.size * 18}px`;
-  w.innerHTML = `<div class="titlebar"><b>${iconHtml(a.icon)} &nbsp; ${e(a.name)}</b><div class="wincontrols"><button aria-label="${e(data.ui.minimize)}" data-min>${e(data.ui.minimizeSymbol)}</button><button aria-label="${e(data.ui.close)}" data-close>${e(data.ui.closeSymbol)}</button></div></div><div class="wincontent">${body(id)}</div><div class="winstatus">${e(id === "welcome" ? data.ui.welcomeStatus : data.ui.statusPrefix + a.name)}<span style="float:right">${e(data.ui.statusLove)}</span></div>`;
+  w.innerHTML = `<div class="titlebar"><b>${iconHtml(a.icon)} &nbsp; ${e(a.name)}</b><div class="wincontrols"><button aria-label="${e(data.ui.minimize)}" data-min>${e(data.ui.minimizeSymbol)}</button><button aria-label="${e(data.ui.maximize)}" title="${e(data.ui.maximize)}" data-max>□</button><button aria-label="${e(data.ui.close)}" data-close>${e(data.ui.closeSymbol)}</button></div></div><div class="wincontent">${body(id)}</div><div class="winstatus">${e(id === "welcome" ? data.ui.welcomeStatus : data.ui.statusPrefix + a.name)}<span style="float:right">${e(data.ui.statusLove)}</span></div>`;
   $("#windows").append(w);
   wins.set(id, w);
+  const cleanups = [
+    setupWindow(w, $("main"), {
+      photo: id === "photos",
+      index: wins.size - 1,
+      texts: data.ui,
+    }),
+  ];
+  w.cleanup = () => cleanups.forEach((cleanup) => cleanup());
   w.addEventListener("pointerdown", () => (w.style.zIndex = ++z));
   w.querySelector("[data-close]").onclick = () => {
+    w.cleanup();
     w.remove();
     wins.delete(id);
     renderTasks();
@@ -106,36 +135,23 @@ function openApp(id) {
   w.querySelectorAll("[data-open]").forEach(
     (b) => (b.onclick = () => openApp(b.dataset.open)),
   );
-  const bar = w.querySelector(".titlebar");
-  bar.onpointerdown = (event) => {
-    if (event.target.closest("button") || innerWidth < 701) return;
-    const rect = w.getBoundingClientRect(),
-      parent = $("main").getBoundingClientRect(),
-      dx = event.clientX - rect.left,
-      dy = event.clientY - rect.top;
-    bar.setPointerCapture(event.pointerId);
-    bar.onpointermove = (ev) => {
-      w.style.left =
-        Math.max(
-          0,
-          Math.min(parent.width - w.offsetWidth, ev.clientX - parent.left - dx),
-        ) + "px";
-      w.style.top =
-        Math.max(
-          0,
-          Math.min(parent.height - 55, ev.clientY - parent.top - dy),
-        ) + "px";
-    };
-    bar.onpointerup = () => (bar.onpointermove = null);
-    bar.onlostpointercapture = () => (bar.onpointermove = null);
-  };
   if (id === "photos")
-    w.querySelectorAll("[data-photo]").forEach(
-      (b) =>
-        (b.onclick = () =>
-          ($("#caption").textContent =
-            data.photos.items[Number(b.dataset.photo)].caption)),
-    );
+    w.querySelectorAll("[data-photo]").forEach((b) => {
+      const p = data.photos.items[Number(b.dataset.photo)];
+      if (isImage(p.image)) {
+        const stage = mountImageStage(
+          b.querySelector(".sample"),
+          p.image,
+          p.title,
+          p.imageView,
+        );
+        cleanups.push(stage.destroy);
+      }
+      b.onclick = () => {
+        $("#caption").textContent = p.caption;
+        if (isImage(p.image)) showPhoto(p, b);
+      };
+    });
   if (id === "maps") {
     renderPlaces("past");
     w.querySelectorAll("[data-places]").forEach(
@@ -178,6 +194,52 @@ function openApp(id) {
     };
   renderTasks();
 }
+function showPhoto(photo, trigger) {
+  const dialog = document.createElement("dialog");
+  photoDialog = dialog;
+  dialog.className = "photo-viewer";
+  dialog.setAttribute("aria-label", photo.title || data.ui.viewPhoto);
+  const top = document.createElement("div");
+  top.className = "viewer-title";
+  const title = document.createElement("h2");
+  title.textContent = photo.title;
+  const close = document.createElement("button");
+  close.textContent = data.ui.closeSymbol;
+  close.setAttribute("aria-label", data.ui.close);
+  close.onclick = () => dialog.close();
+  top.append(title, close);
+  dialog.append(top);
+  const editor = createImageEditor(
+    photo.image,
+    photo.title,
+    { fit: "contain", zoom: 1, x: 50, y: 50 },
+    null,
+    {
+      texts: {
+        fit: data.ui.photoFit,
+        fill: data.ui.photoFill,
+        zoom: data.ui.photoZoom,
+        x: data.ui.photoX,
+        y: data.ui.photoY,
+        reset: data.ui.photoReset,
+        hint: data.ui.photoHelp,
+      },
+    },
+  );
+  const caption = document.createElement("p");
+  caption.className = "viewer-caption";
+  caption.textContent = photo.caption;
+  dialog.append(editor.root, caption);
+  document.body.append(dialog);
+  dialog.onclose = () => {
+    editor.destroy();
+    dialog.remove();
+    photoDialog = null;
+    trigger.focus();
+  };
+  dialog.addEventListener("cancel", (event) => event.stopPropagation());
+  dialog.showModal();
+}
 function renderPlaces(type) {
   $("#placelist").innerHTML = data.maps[type]
     .map(
@@ -198,11 +260,13 @@ function renderTasks() {
 $("#start").onclick = () => ($("#menu").hidden = !$("#menu").hidden);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    if (photoDialog?.open) return;
     $("#menu").hidden = true;
     const top = [...wins.entries()]
       .filter(([, w]) => !w.hidden)
       .sort((a, b) => +b[1].style.zIndex - +a[1].style.zIndex)[0];
     if (top) {
+      top[1].cleanup?.();
       top[1].remove();
       wins.delete(top[0]);
       renderTasks();

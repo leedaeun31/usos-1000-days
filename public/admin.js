@@ -4,7 +4,9 @@ import {
   templates,
   isImage,
   validateContent,
+  normalizeContent,
 } from "./content-model.js";
+import { createImageEditor } from "./image-view.js";
 import { GitHubStore } from "./github-store.js";
 const $ = (s) => document.querySelector(s);
 let data,
@@ -14,6 +16,7 @@ let data,
   dirty = false,
   busy = false;
 const get = (path) => path.split(".").reduce((v, key) => v[key], data);
+let imageEditors = [];
 function set(path, value) {
   const parts = path.split("."),
     key = parts.pop();
@@ -49,6 +52,8 @@ function element(tag, text, className) {
   return el;
 }
 function render() {
+  imageEditors.forEach((editor) => editor.destroy());
+  imageEditors = [];
   const editor = $("#editor");
   editor.replaceChildren(element("h2", sections[section]));
   fields(data[section], section, editor);
@@ -60,6 +65,7 @@ function render() {
 }
 function fields(obj, path, parent) {
   for (const [key, value] of Object.entries(obj)) {
+    if (["imageView", "wallpaperView"].includes(key)) continue;
     const full = path + "." + key;
     if (Array.isArray(value)) {
       const wrap = element("div");
@@ -146,11 +152,29 @@ function fields(obj, path, parent) {
     }
     if (media) {
       if (isImage(value)) {
-        const img = document.createElement("img");
-        img.src = value;
-        img.alt = labels[key] || "선택한 이미지";
-        img.className = "image-preview";
-        wrap.append(img);
+        if (key === "image" || key === "wallpaperImage") {
+          const viewPath =
+            path + "." + (key === "image" ? "imageView" : "wallpaperView");
+          let ready = false;
+          const editor = createImageEditor(
+            value,
+            obj.title || labels[key],
+            get(viewPath),
+            (view) => {
+              if (ready) set(viewPath, view);
+            },
+            { wallpaper: key === "wallpaperImage" },
+          );
+          ready = true;
+          wrap.append(editor.root);
+          imageEditors.push(editor);
+        } else {
+          const img = document.createElement("img");
+          img.src = value;
+          img.alt = labels[key] || "선택한 이미지";
+          img.className = "image-preview";
+          wrap.append(img);
+        }
       }
       const actions = element("div", undefined, "media-actions");
       const upload = document.createElement("input");
@@ -269,7 +293,7 @@ $("#restore").onclick = async () => {
     if (!saved) throw new Error("이 기기에 저장된 초안이 없어요.");
     if (dirty && !confirm("현재 편집 내용을 초안으로 바꿀까요?")) return;
     validateContent(saved.content, reference);
-    data = saved.content;
+    data = normalizeContent(saved.content);
     dirty = true;
     render();
     notice(
@@ -315,7 +339,7 @@ $("#login").onsubmit = async (event) => {
   $("#token").value = "";
   try {
     await candidate.login();
-    const latest = await candidate.load();
+    const latest = normalizeContent(await candidate.load());
     validateContent(latest, reference);
     store?.logout();
     store = candidate;
@@ -353,7 +377,9 @@ $("#reload").onclick = async () => {
   busy = true;
   state();
   try {
-    const latest = store ? await store.load() : await fetchContent();
+    const latest = normalizeContent(
+      store ? await store.load() : await fetchContent(),
+    );
     validateContent(latest, reference);
     data = latest;
     dirty = false;
@@ -398,7 +424,7 @@ $("#publish").onclick = async () => {
 async function fetchContent() {
   const res = await fetch("content.json", { cache: "no-store" });
   if (!res.ok) throw new Error("내용을 불러오지 못했어요. 새로고침해 주세요.");
-  return res.json();
+  return normalizeContent(await res.json());
 }
 window.addEventListener("beforeunload", (event) => {
   if (dirty || busy) {

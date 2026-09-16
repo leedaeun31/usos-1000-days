@@ -4,6 +4,8 @@
   background: #fffaf2;
   font-size: 16px;
 }
+#editor .image-editor>.image-stage{max-width:440px;max-height:none;aspect-ratio:1}
+#editor .wallpaper-editor>.image-stage{max-width:none;aspect-ratio:16/9}
 * {
   box-sizing: border-box;
 }
