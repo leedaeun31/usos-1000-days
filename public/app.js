@@ -4,10 +4,9 @@ import {
   isImage,
   normalizeContent,
 } from "./content-model.js";
-import { mountImageStage, createImageEditor } from "./image-view.js";
+import { mountImageStage } from "./image-view.js";
 import { setupWindow } from "./window-manager.js";
-let backgroundStage = null,
-  photoDialog = null;
+let backgroundStage = null;
 let data,
   z = 10;
 const wins = new Map();
@@ -52,7 +51,6 @@ function renderDesktop(next) {
     );
   }
   wins.forEach((w) => w.cleanup?.());
-  photoDialog?.close();
   wins.clear();
   $("#windows").replaceChildren();
   $("#desktop").replaceChildren();
@@ -85,7 +83,7 @@ function body(id) {
     case "welcome":
       return `<div class="welcome"><span class="pill">${e(v.version)}</span><div class="eyebrow">${e(v.eyebrow)}</div><h2>${e(v.heading)}</h2><p>${lines(v.body)}</p><button class="primary" data-open="photos">${e(v.button)}</button><p class="small-hint">${lines(v.hint)}</p></div>`;
     case "photos":
-      return `<span class="pill">${e(v.label)}</span><div class="cards">${v.items.map((p, i) => `<button class="photo" data-photo="${i}" aria-label="${e(p.title + " · " + data.ui.viewPhoto)}"><div class="sample">${isImage(p.image) ? "" : iconHtml(p.icon)}</div><p>${e(p.title)}</p></button>`).join("")}</div><p class="gallery-hint">${e(v.hint)}</p><p class="photo-detail" id="caption">${e(v.empty)}</p>`;
+      return `<span class="pill">${e(v.label)}</span><div class="cards">${v.items.map((p, i) => `<button class="photo" data-photo="${i}" aria-label="${e(p.title)}"><div class="sample">${isImage(p.image) ? "" : iconHtml(p.icon)}</div><p>${e(p.title)}</p></button>`).join("")}</div><p class="gallery-hint">${e(v.hint)}</p><p class="photo-detail" id="caption">${e(v.empty)}</p>`;
     case "notes":
       return `<span class="pill">${e(v.label)}</span>${v.items.map((n) => `<article class="note"><h3>${e(n.title)}</h3><p>${lines(n.body)}</p></article>`).join("")}`;
     case "maps":
@@ -149,7 +147,6 @@ function openApp(id) {
       }
       b.onclick = () => {
         $("#caption").textContent = p.caption;
-        if (isImage(p.image)) showPhoto(p, b);
       };
     });
   if (id === "maps") {
@@ -194,52 +191,6 @@ function openApp(id) {
     };
   renderTasks();
 }
-function showPhoto(photo, trigger) {
-  const dialog = document.createElement("dialog");
-  photoDialog = dialog;
-  dialog.className = "photo-viewer";
-  dialog.setAttribute("aria-label", photo.title || data.ui.viewPhoto);
-  const top = document.createElement("div");
-  top.className = "viewer-title";
-  const title = document.createElement("h2");
-  title.textContent = photo.title;
-  const close = document.createElement("button");
-  close.textContent = data.ui.closeSymbol;
-  close.setAttribute("aria-label", data.ui.close);
-  close.onclick = () => dialog.close();
-  top.append(title, close);
-  dialog.append(top);
-  const editor = createImageEditor(
-    photo.image,
-    photo.title,
-    { fit: "contain", zoom: 1, x: 50, y: 50 },
-    null,
-    {
-      texts: {
-        fit: data.ui.photoFit,
-        fill: data.ui.photoFill,
-        zoom: data.ui.photoZoom,
-        x: data.ui.photoX,
-        y: data.ui.photoY,
-        reset: data.ui.photoReset,
-        hint: data.ui.photoHelp,
-      },
-    },
-  );
-  const caption = document.createElement("p");
-  caption.className = "viewer-caption";
-  caption.textContent = photo.caption;
-  dialog.append(editor.root, caption);
-  document.body.append(dialog);
-  dialog.onclose = () => {
-    editor.destroy();
-    dialog.remove();
-    photoDialog = null;
-    trigger.focus();
-  };
-  dialog.addEventListener("cancel", (event) => event.stopPropagation());
-  dialog.showModal();
-}
 function renderPlaces(type) {
   $("#placelist").innerHTML = data.maps[type]
     .map(
@@ -260,7 +211,6 @@ function renderTasks() {
 $("#start").onclick = () => ($("#menu").hidden = !$("#menu").hidden);
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
-    if (photoDialog?.open) return;
     $("#menu").hidden = true;
     const top = [...wins.entries()]
       .filter(([, w]) => !w.hidden)

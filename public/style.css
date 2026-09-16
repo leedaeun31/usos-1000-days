@@ -63,7 +63,7 @@ main {
   top: 32px;
   left: 28px;
   display: grid;
-  gap: 23px;
+  gap: 18px;
   z-index: 2;
 }
 .app-icon {
@@ -72,8 +72,8 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 9px;
-  width: 102px;
+  gap: 6px;
+  width: 82px;
   padding: 6px;
   border-radius: 8px;
   font-size: 13px;
@@ -82,8 +82,8 @@ main {
   background: #eadff19c;
 }
 .icon {
-  font-size: 37px;
-  line-height: 46px;
+  font-size: 26px;
+  line-height: 32px;
   filter: drop-shadow(2px 3px 0 #c3aebe70);
 }
 .wallpaper {
@@ -328,7 +328,7 @@ footer button {
   display: grid;
   place-items: center;
   background: #f2e6f8;
-  font-size: 45px;
+  font-size: 30px;
 }
 .photo:nth-child(even) .sample {
   background: #fae4eb;
@@ -484,13 +484,13 @@ footer button {
     gap: 12px;
   }
   .app-icon {
-    width: 80px;
+    width: 70px;
     font-size: 12px;
     gap: 3px;
   }
   .icon {
-    font-size: 30px;
-    line-height: 38px;
+    font-size: 22px;
+    line-height: 28px;
   }
   .wallpaper {
     left: 24%;
@@ -573,14 +573,14 @@ footer button {
   }
 }
 .custom-icon {
-  width: 1.4em;
-  height: 1.4em;
+  width: 1.1em;
+  height: 1.1em;
   object-fit: contain;
   vertical-align: middle;
 }
 .icon .custom-icon {
-  width: 46px;
-  height: 46px;
+  width: 30px;
+  height: 30px;
 }
 .memory-image {
   width: 100%;
@@ -595,7 +595,7 @@ footer button {
   color: #aa91ae;
 }
 .trash-icon {
-  font-size: 55px;
+  font-size: 34px;
 }
 .admin-link {
   display: block;
